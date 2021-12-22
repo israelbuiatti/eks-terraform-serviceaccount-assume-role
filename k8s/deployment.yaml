@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eks-iam-test
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eks-iam-test
+  template:
+    metadata:
+      labels:
+        app: eks-iam-test
+    spec:
+      serviceAccountName: demo
+      containers:
+        # - name: backend-nodejs
+        #   image: israelbuiatti/ms-caixa-backend:aws5
+        #   command: ["npm"]
+        #   args: ["start"]
+        #   ports:
+        #     - containerPort: 3333
+        #   imagePullPolicy: "Always"
+        #   env:
+        #     - name: NODE_ENV
+        #       value: "production"
+        #     - name: PORT
+        #       value: "3333"              
+        - name: backend-java
+          image: israelbuiatti/tests3:v2
+          ports:
+            - containerPort: 8081
+          imagePullPolicy: "Always"           
+      

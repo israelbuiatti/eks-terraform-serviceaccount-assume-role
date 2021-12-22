@@ -1,0 +1,7 @@
+version: '3'
+services:
+ tests3:
+    image: israelbuiatti/tests3v2
+    container_name: tests3
+    ports:
+      - "8090:8081"

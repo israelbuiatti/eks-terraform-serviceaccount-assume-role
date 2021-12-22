@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  ms-caixa-backend:
+    container_name: ms-caixa-backend
+    build: .
+    ports:
+      - "3339:5000"
+    command: npm start
+    environment:
+      - NODE_ENV=
+      - REDIS_HOST=
+      - REDIS_PORT=
+      
