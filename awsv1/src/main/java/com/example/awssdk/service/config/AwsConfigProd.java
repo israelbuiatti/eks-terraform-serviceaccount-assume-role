@@ -18,6 +18,8 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.*;
@@ -49,7 +51,7 @@ public class AwsConfigProd implements AwsConfig {
 
         System.out.println("AWS_ROLE_ARN= " + awsCredentialsSettings.getRoleArn());
         System.out.println("AWS_WEB_IDENTITY_TOKEN_FILE= " + awsCredentialsSettings.getServiceAccountTokenFile());
-        System.out.println("AWS_DEFAULT_REGION= " + awsCredentialsSettings.getClientRegion());
+        System.out.println("AWS_DEFAULT_REGION= " + awsCredentialsSettings.getRegion());
 
         System.out.println(".");
         System.out.println(".");
@@ -58,6 +60,7 @@ public class AwsConfigProd implements AwsConfig {
 
         try {
 
+            //ASSUME ROLE
             AWSSecurityTokenService client = AWSSecurityTokenServiceClientBuilder.standard().build();
             AssumeRoleWithWebIdentityRequest request = new AssumeRoleWithWebIdentityRequest()
                     .withRoleArn(awsCredentialsSettings.getRoleArn())
@@ -72,41 +75,42 @@ public class AwsConfigProd implements AwsConfig {
                     sessionCredentials.getSecretAccessKey(),
                     sessionCredentials.getSessionToken());
 
+
+            //S3
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                     .withRegion(awsCredentialsSettings.getRegion())
                     .build();
 
-            awsCredentialsSettings.setAccessKeyId(sessionCredentials.getAccessKeyId());
-            awsCredentialsSettings.setSecretAccessKey(sessionCredentials.getSecretAccessKey());
-            awsCredentialsSettings.setSessionToken(sessionCredentials.getSessionToken());
-            awsCredentialsSettings.setRegion(awsCredentialsSettings.getClientRegion());
-            awsCredentialsSettings.setAwsCredentials(awsCredentials);
-
             awsCredentialsSettings.setS3Client(s3Client);
 
+
+            //STS
+            AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .withRegion(awsCredentialsSettings.getRegion())
+                    .build();
+
+            awsCredentialsSettings.setStsClient(stsClient);
+
+
+            //SECRET MANAGER
+            AWSSecretsManager secretClient = AWSSecretsManagerClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .withRegion(awsCredentialsSettings.getRegion())
+                    .build();
+
+            awsCredentialsSettings.setSecretClient(secretClient);
 
         }
         catch(AmazonServiceException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process
             // it, so it returned an error response.
-            System.out.println(".");
-            System.out.println(".");
-            System.out.println(".");
-            System.out.println("Entrou1");
-            System.out.println(e);
-            System.out.println(e.getCause());
             e.printStackTrace();
         }
         catch(SdkClientException e) {
             // Amazon S3 couldn't be contacted for a response, or the client
             // couldn't parse the response from Amazon S3.
-            System.out.println(".");
-            System.out.println(".");
-            System.out.println(".");
-            System.out.println("Entrou2");
-            System.out.println(e);
-            System.out.println(e.getCause());
             e.printStackTrace();
 
         }

@@ -15,6 +15,8 @@ package com.example.awssdk.service.config; /**
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.example.awssdk.settings.AwsCredentialsSettings;
@@ -51,6 +53,14 @@ public class AwsConfigDev implements AwsConfig {
                 .build();
 
         awsCredentialsSettings.setStsClient(stsClient);
+
+
+        //SECRET MANAGER
+        AWSSecretsManager secretClient = AWSSecretsManagerClientBuilder.standard()
+                .withRegion(awsCredentialsSettings.getRegion())
+                .build();
+
+        awsCredentialsSettings.setSecretClient(secretClient);
 
     }
 

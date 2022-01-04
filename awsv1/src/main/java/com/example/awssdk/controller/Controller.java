@@ -1,5 +1,6 @@
 package com.example.awssdk.controller;
 
+import com.example.awssdk.service.SecretService;
 import com.example.awssdk.service.config.AwsConfig;
 import com.example.awssdk.service.S3Service;
 import com.example.awssdk.service.StsService;
@@ -18,6 +19,9 @@ public class Controller {
 
 	@Autowired
 	private StsService stsService;
+
+	@Autowired
+	private SecretService secretService;
 
 	@Autowired
 	private AwsConfig awsConfig;
@@ -47,6 +51,12 @@ public class Controller {
 	public ResponseEntity me() {
 		String me = stsService.getCallerIdentity();
 		return ResponseEntity.ok(me);
+	}
+
+	@GetMapping("/secret")
+	public ResponseEntity secret() {
+		String secret = secretService.getSecretValue("dev/user/israel");
+		return ResponseEntity.ok(secret);
 	}
 
 
