@@ -1,4 +1,4 @@
-package com.example.awssdk; /**
+package com.example.awssdk.service.config; /**
  * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file is licensed under the Apache License, Version 2.0 (the "License").
@@ -23,7 +23,6 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
 import com.amazonaws.services.securitytoken.model.*;
 import com.example.awssdk.settings.AwsCredentialsSettings;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +31,7 @@ import java.io.*;
 
 @Component
 @Profile("prod")
-public class AwsConfig {
+public class AwsConfigProd implements AwsConfig {
 
     @Autowired
     private AwsCredentialsSettings awsCredentialsSettings;
@@ -83,6 +82,7 @@ public class AwsConfig {
             awsCredentialsSettings.setSessionToken(sessionCredentials.getSessionToken());
             awsCredentialsSettings.setRegion(awsCredentialsSettings.getClientRegion());
             awsCredentialsSettings.setAwsCredentials(awsCredentials);
+
             awsCredentialsSettings.setS3Client(s3Client);
 
 

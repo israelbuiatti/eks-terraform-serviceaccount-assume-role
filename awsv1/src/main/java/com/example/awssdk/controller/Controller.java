@@ -1,9 +1,8 @@
 package com.example.awssdk.controller;
 
-import com.example.awssdk.AwsConfig;
-import com.example.awssdk.AwsGetCallerIdentity;
-import com.example.awssdk.service.Service;
-import com.example.awssdk.settings.AwsCredentialsSettings;
+import com.example.awssdk.service.config.AwsConfig;
+import com.example.awssdk.service.S3Service;
+import com.example.awssdk.service.StsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,41 +14,39 @@ import java.util.List;
 public class Controller {
 
 	@Autowired
-	private Service service;
+	private S3Service s3service;
 
 	@Autowired
-	private AwsCredentialsSettings awsCredentialsSettings;
+	private StsService stsService;
 
 	@Autowired
-	AwsConfig awsConfig;
+	private AwsConfig awsConfig;
 
-	@Autowired
-	AwsGetCallerIdentity awsGetCallerIdentity;
 
 	@GetMapping("/teste")
 	public ResponseEntity teste() {
 
 		//Check token is expired
 		try {
-			awsGetCallerIdentity.getCallerIdentity();
+			stsService.getCallerIdentity();
 		} catch (Exception e) {
 			awsConfig.renew();
 		}
 
-		List<String> list = service.getList();
+		List<String> list = s3service.getList();
 		return ResponseEntity.ok(list);
 	}
 
 	@GetMapping("/renew")
 	public ResponseEntity renew() {
-
-		System.out.println("AWS_ROLE_ARN= " + awsCredentialsSettings.getRoleArn());
-		System.out.println("AWS_WEB_IDENTITY_TOKEN_FILE= " + awsCredentialsSettings.getServiceAccountTokenFile());
-		System.out.println("AWS_DEFAULT_REGION= " + awsCredentialsSettings.getClientRegion());
-
 		awsConfig.renew();
+		return ResponseEntity.ok("Aws credentials renewed...");
+	}
 
-		return ResponseEntity.ok("OK");
+	@GetMapping("/me")
+	public ResponseEntity me() {
+		String me = stsService.getCallerIdentity();
+		return ResponseEntity.ok(me);
 	}
 
 

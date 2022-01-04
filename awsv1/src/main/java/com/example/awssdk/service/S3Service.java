@@ -1,4 +1,4 @@
-package com.example.awssdk.service.s3;
+package com.example.awssdk.service;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;

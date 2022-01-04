@@ -18,9 +18,9 @@ variable "nodes_instances_sizes" {
 
 variable "auto_scale_options" {
   default = {
-    min     = 2
+    min     = 1
     max     = 10
-    desired = 2
+    desired = 1
   }
 }
 
