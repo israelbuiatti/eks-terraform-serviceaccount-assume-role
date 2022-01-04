@@ -6,7 +6,8 @@ services:
     build: .
     ports:
       - "3339:5000"
-    command: npm start
     environment:
       - NODE_ENV=production
+    volumes:
+      - C:\Users\israe\.aws:/root/.aws:ro      
       

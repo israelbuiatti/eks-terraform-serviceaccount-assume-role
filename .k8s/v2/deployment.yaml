@@ -15,18 +15,6 @@ spec:
     spec:
       serviceAccountName: demo
       containers:
-        # - name: backend-nodejs
-        #   image: israelbuiatti/awssdk-node:v1
-        #   command: ["npm"]
-        #   args: ["start"]
-        #   ports:
-        #     - containerPort: 3333
-        #   imagePullPolicy: "Always"
-        #   env:
-        #     - name: NODE_ENV
-        #       value: "production"
-        #     - name: PORT
-        #       value: "3333"              
         - name: backend-java
           image: israelbuiatti/awssdk-java-v2
           ports:
