@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.example</groupId>
-	<artifactId>awssdkExampleApp</artifactId>
+	<artifactId>awssdkV2ExampleApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>AWS SDK Example App</name>
-	<description>AWS SDK Example App</description>
+	<name>AWS SDK V2 Example App</name>
+	<description>AWS SDK V2 Example App</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

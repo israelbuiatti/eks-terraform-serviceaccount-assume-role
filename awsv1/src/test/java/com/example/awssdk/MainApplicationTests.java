@@ -1,4 +1,4 @@
-package com.example.circuitbreaker;
+package com.example.awssdk;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

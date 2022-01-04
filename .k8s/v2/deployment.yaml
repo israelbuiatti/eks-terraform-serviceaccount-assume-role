@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eks-iam-test
+  name: eks-iam-test-v2
   namespace: demo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: eks-iam-test
+      app: eks-iam-test-v2
   template:
     metadata:
       labels:
-        app: eks-iam-test
+        app: eks-iam-test-v2
     spec:
       serviceAccountName: demo
       containers:
         # - name: backend-nodejs
-        #   image: israelbuiatti/ms-caixa-backend:aws5
+        #   image: israelbuiatti/awssdk-node:v1
         #   command: ["npm"]
         #   args: ["start"]
         #   ports:
@@ -28,8 +28,11 @@ spec:
         #     - name: PORT
         #       value: "3333"              
         - name: backend-java
-          image: israelbuiatti/tests3:v2
+          image: israelbuiatti/awssdk-java-v2
           ports:
-            - containerPort: 8081
-          imagePullPolicy: "Always"           
+            - containerPort: 8080
+          imagePullPolicy: "Always"       
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
       

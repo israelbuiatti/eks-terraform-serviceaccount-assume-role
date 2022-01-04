@@ -18,8 +18,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.*;
@@ -31,148 +29,86 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.util.List;
 
 @Component
 @Profile("prod")
-public class ListS3 {
-
-    @Value("#{environment.AWS_ROLE_ARN}")
-    private String roleArn;
-
-    @Value("${AWS_WEB_IDENTITY_TOKEN_FILE}")
-    private String serviceAccountTokenFile;
-
-    @Value("${AWS_DEFAULT_REGION}")
-    private String clientRegion;
+public class AwsConfig {
 
     @Autowired
     private AwsCredentialsSettings awsCredentialsSettings;
 
     @PostConstruct
-    public void init() {
+    public void renew() {
 
-        System.out.println(".");
-        System.out.println(".");
-        System.out.println(".");
-
-        System.out.println("AWS_ROLE_ARN= " + roleArn);
-        System.out.println("AWS_WEB_IDENTITY_TOKEN_FILE= " + serviceAccountTokenFile);
-        System.out.println("AWS_DEFAULT_REGION= " + clientRegion);
-
-        System.out.println(".");
-        System.out.println(".");
-        System.out.println(".");
-
-
-        String roleARN = "arn:aws:iam::044712912013:role/s3-role";
-        String bucketName = "israel-teste1";
         String roleSessionName = "sessionName";
-        int duration = 3600;
+        int duration = 900; //The duration must be between 3,600 (1 hour) and 43,200 (12 hours)
+
+
+        System.out.println(".");
+        System.out.println(".");
+        System.out.println(".");
+
+        System.out.println("AWS_ROLE_ARN= " + awsCredentialsSettings.getRoleArn());
+        System.out.println("AWS_WEB_IDENTITY_TOKEN_FILE= " + awsCredentialsSettings.getServiceAccountTokenFile());
+        System.out.println("AWS_DEFAULT_REGION= " + awsCredentialsSettings.getClientRegion());
+
+        System.out.println(".");
+        System.out.println(".");
+        System.out.println(".");
 
 
         try {
 
             AWSSecurityTokenService client = AWSSecurityTokenServiceClientBuilder.standard().build();
             AssumeRoleWithWebIdentityRequest request = new AssumeRoleWithWebIdentityRequest()
-                    .withRoleArn(roleArn)
+                    .withRoleArn(awsCredentialsSettings.getRoleArn())
                     .withRoleSessionName(roleSessionName)
-                    .withWebIdentityToken(getWebIdentityToken(serviceAccountTokenFile)).withDurationSeconds(duration);
+                    .withWebIdentityToken(getWebIdentityToken(awsCredentialsSettings.getServiceAccountTokenFile())).withDurationSeconds(duration);
             AssumeRoleWithWebIdentityResult response = client.assumeRoleWithWebIdentity(request);
 
             Credentials sessionCredentials = response.getCredentials();
-
-            String subjectFromWIF = response.getSubjectFromWebIdentityToken();
 
             BasicSessionCredentials awsCredentials = new BasicSessionCredentials(
                     sessionCredentials.getAccessKeyId(),
                     sessionCredentials.getSecretAccessKey(),
                     sessionCredentials.getSessionToken());
 
-            System.out.println("subjectFromWIF= " + subjectFromWIF);
-            System.out.println("sessionCredentials.getAccessKeyId(): " + sessionCredentials.getAccessKeyId());
-            System.out.println("sessionCredentials.getSecretAccessKey(): " + sessionCredentials.getSecretAccessKey());
-            System.out.println("sessionCredentials.getSessionToken(): " + sessionCredentials.getSessionToken());
-
-
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                     .withRegion(awsCredentialsSettings.getRegion())
                     .build();
 
-
             awsCredentialsSettings.setAccessKeyId(sessionCredentials.getAccessKeyId());
             awsCredentialsSettings.setSecretAccessKey(sessionCredentials.getSecretAccessKey());
             awsCredentialsSettings.setSessionToken(sessionCredentials.getSessionToken());
-            awsCredentialsSettings.setRegion(clientRegion);
+            awsCredentialsSettings.setRegion(awsCredentialsSettings.getClientRegion());
             awsCredentialsSettings.setAwsCredentials(awsCredentials);
             awsCredentialsSettings.setS3Client(s3Client);
 
-
-
-
-
-            //getCallerIdentity
-            AWSSecurityTokenService client2 = AWSSecurityTokenServiceClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .build();
-
-            GetCallerIdentityRequest request2 = new GetCallerIdentityRequest();
-            GetCallerIdentityResult response2 = client2.getCallerIdentity(request2);
-            System.out.println(response2.getArn());
-
-
-
-//            // Creating the STS client is part of your trusted code. It has
-//            // the security credentials you use to obtain temporary security credentials.
-//            AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard()
-//                                                    //.withCredentials(new ProfileCredentialsProvider())
-//                                                    .withRegion(clientRegion)
-//                                                    .build();
-//
-//            // Obtain credentials for the IAM role. Note that you cannot assume the role of an AWS root account;
-//            // Amazon S3 will deny access. You must use credentials for an IAM user or an IAM role.
-//            AssumeRoleRequest roleRequest = new AssumeRoleRequest()
-//                                                    .withRoleArn(roleARN)
-//                                                    .withRoleSessionName(roleSessionName);
-//            AssumeRoleResult roleResponse = stsClient.assumeRole(roleRequest);
-//            Credentials sessionCredentials = roleResponse.getCredentials();
-//
-//            // Create a BasicSessionCredentials object that contains the credentials you just retrieved.
-//            BasicSessionCredentials awsCredentials = new BasicSessionCredentials(
-//                    sessionCredentials.getAccessKeyId(),
-//                    sessionCredentials.getSecretAccessKey(),
-//                    sessionCredentials.getSessionToken());
-//
-//            // Provide temporary security credentials so that the Amazon S3 client
-//            // can send authenticated requests to Amazon S3. You create the client
-//            // using the sessionCredentials object.
-//            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-//                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-//                    .withRegion(clientRegion)
-//                    .build();
-
-            // Verify that assuming the role worked and the permissions are set correctly
-            // by getting a set of object keys from the bucket.
-//            System.out.println("BucketName: " + bucketName);
-//            ObjectListing objects = s3Client.listObjects(bucketName);
-//            System.out.println("No. of Objects: " + objects.getObjectSummaries().size());
-//            objects.getObjectSummaries().stream().forEach(x -> System.out.println(x.getKey()));
-
-
-            List<Bucket> buckets = s3Client.listBuckets();
-            buckets.stream().forEach(x -> System.out.println(x.getName()));
 
         }
         catch(AmazonServiceException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process
             // it, so it returned an error response.
+            System.out.println(".");
+            System.out.println(".");
+            System.out.println(".");
+            System.out.println("Entrou1");
+            System.out.println(e);
+            System.out.println(e.getCause());
             e.printStackTrace();
         }
         catch(SdkClientException e) {
             // Amazon S3 couldn't be contacted for a response, or the client
             // couldn't parse the response from Amazon S3.
+            System.out.println(".");
+            System.out.println(".");
+            System.out.println(".");
+            System.out.println("Entrou2");
+            System.out.println(e);
+            System.out.println(e.getCause());
             e.printStackTrace();
+
         }
     }
 

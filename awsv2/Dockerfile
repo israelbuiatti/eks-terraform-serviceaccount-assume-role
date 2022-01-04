@@ -15,5 +15,6 @@ RUN wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 && \
 
 VOLUME /tmp
 COPY target/*.jar app.jar
+#ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 

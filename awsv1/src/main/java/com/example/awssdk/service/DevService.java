@@ -1,47 +1,36 @@
 package com.example.awssdk.service;
 
-import com.example.awssdk.model.Model3;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
+@Profile("dev")
 @Log4j2
-public class Service3 {
+public class DevService implements Service {
 
-	@Autowired
-	private RestTemplate template;
+	@Value("${AWS_DEFAULT_REGION}")
+	private String clientRegion;
 
-	@HystrixCommand(groupKey = "group1", commandKey = "command3", fallbackMethod = "fallBack", commandProperties = {
-			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
-	})
-	public Model3 service3() {
+	public List<String> getList() {
 
-		Model3 model3 = new Model3();
+		AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+				.withRegion(clientRegion)
+				.build();
 
-		String response = template.getForObject("http://localhost:9003/circuit-breaker/200/10000", String.class);
-		model3.setMessage(response);
-		log.info("SERVICE3::: {} - {}", new Date(), response);
+		List<String> list = new ArrayList<>();
 
-		return model3;
-	}
+		List<Bucket> buckets = s3Client.listBuckets();
+		buckets.stream().forEach(x -> list.add(x.getName()));
 
-	public Model3 fallBack() throws Exception {
-
-		String message = "service gateway failed 3...";
-
-		log.error("SERVICE3 fallback::: {} - {}", new Date(), message);
-
-		Model3 model3 = new Model3();
-		model3.setMessage(message);
-		model3.setStatus(false);
-
-		return model3;
+		return list;
 	}
 
 }

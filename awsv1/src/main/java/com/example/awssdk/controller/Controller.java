@@ -1,39 +1,55 @@
-package com.example.circuitbreaker.controller;
+package com.example.awssdk.controller;
 
-import com.example.circuitbreaker.dto.ResponseDto;
-import com.example.circuitbreaker.model.Model1;
-import com.example.circuitbreaker.model.Model2;
-import com.example.circuitbreaker.model.Model3;
-import com.example.circuitbreaker.service.Service1;
-import com.example.circuitbreaker.service.Service2;
-import com.example.circuitbreaker.service.Service3;
+import com.example.awssdk.AwsConfig;
+import com.example.awssdk.AwsGetCallerIdentity;
+import com.example.awssdk.service.Service;
+import com.example.awssdk.settings.AwsCredentialsSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class Controller {
 
 	@Autowired
-	private Service1 service1;
+	private Service service;
 
 	@Autowired
-	private Service2 service2;
+	private AwsCredentialsSettings awsCredentialsSettings;
 
 	@Autowired
-	private Service3 service3;
+	AwsConfig awsConfig;
+
+	@Autowired
+	AwsGetCallerIdentity awsGetCallerIdentity;
 
 	@GetMapping("/teste")
-	public ResponseEntity<ResponseDto> teste() {
-		Model1 model1 = service1.service1();
-		Model2 model2 = service2.service2();
-		Model3 model3 = service3.service3();
+	public ResponseEntity teste() {
 
-		ResponseDto response = new ResponseDto(model1, model2, model3);
+		//Check token is expired
+		try {
+			awsGetCallerIdentity.getCallerIdentity();
+		} catch (Exception e) {
+			awsConfig.renew();
+		}
 
-		return ResponseEntity.ok(response);
+		List<String> list = service.getList();
+		return ResponseEntity.ok(list);
+	}
 
+	@GetMapping("/renew")
+	public ResponseEntity renew() {
+
+		System.out.println("AWS_ROLE_ARN= " + awsCredentialsSettings.getRoleArn());
+		System.out.println("AWS_WEB_IDENTITY_TOKEN_FILE= " + awsCredentialsSettings.getServiceAccountTokenFile());
+		System.out.println("AWS_DEFAULT_REGION= " + awsCredentialsSettings.getClientRegion());
+
+		awsConfig.renew();
+
+		return ResponseEntity.ok("OK");
 	}
 
 

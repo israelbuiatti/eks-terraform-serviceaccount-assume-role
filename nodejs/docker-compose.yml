@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  ms-caixa-backend:
-    container_name: ms-caixa-backend
+  node-aws:
+    container_name: node-aws
     build: .
     ports:
       - "3339:5000"

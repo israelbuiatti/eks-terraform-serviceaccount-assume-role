@@ -1,11 +1,11 @@
 version: '3'
 services:
- awssdk-java-v1:
+ awssdk-java-v2:
     build: .
-    image: israelbuiatti/awssdk-java-v1
-    container_name: awssdk-java-v1
+    image: israelbuiatti/awssdk-java-v2
+    container_name: awssdk-java-v2
     ports:
-      - "8080:8083"
+      - "8081:8083"
     environment:
       - AWS_ROLE_ARN=aws1
       - AWS_WEB_IDENTITY_TOKEN_FILE=aws2

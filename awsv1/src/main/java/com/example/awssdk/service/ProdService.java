@@ -1,48 +1,57 @@
 package com.example.awssdk.service;
 
-import com.example.awssdk.model.Model2;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.s3.model.Bucket;
+import com.example.awssdk.settings.AwsCredentialsSettings;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
+@Profile("prod")
 @Log4j2
-public class Service2 {
+public class ProdService implements Service {
 
 	@Autowired
-	private RestTemplate template;
+	private AwsCredentialsSettings awsCredentialsSettings;
 
-	@HystrixCommand(groupKey = "group1", commandKey = "command2", fallbackMethod = "fallBack", commandProperties = {
-			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "10000")
-	})
-	public Model2 service2() {
-		String response = template.getForObject("http://localhost:9002/circuit-breaker/200/11000", String.class);
+	public List<String> getList() {
 
-		Model2 model2 = new Model2();
-		model2.setMessage(response);
+		List<String> list = new ArrayList<>();
 
-		log.info("SERVICE2::: {} - {}", new Date(), response);
+		try {
+			List<Bucket> buckets = awsCredentialsSettings.getS3Client().listBuckets();
+			buckets.stream().forEach(x -> list.add(x.getName()));
+		}
+        catch(AmazonServiceException e) {
+			// The call was transmitted successfully, but Amazon S3 couldn't process
+			// it, so it returned an error response.
+			System.out.println(".");
+			System.out.println(".");
+			System.out.println(".");
+			System.out.println("Entrou1");
+			System.out.println(e);
+			System.out.println(e.getCause());
+			e.printStackTrace();
+		}
+        catch(SdkClientException e) {
+			// Amazon S3 couldn't be contacted for a response, or the client
+			// couldn't parse the response from Amazon S3.
+			System.out.println(".");
+			System.out.println(".");
+			System.out.println(".");
+			System.out.println("Entrou2");
+			System.out.println(e);
+			System.out.println(e.getCause());
+			e.printStackTrace();
 
-		return model2;
-	}
-
-	public Model2 fallBack() {
-
-		String message = "service gateway failed 2..";
-
-		log.error("SERVICE2::: {} - {}", new Date(), message);
-
-
-		Model2 model2 = new Model2();
-		model2.setMessage(message);
-		model2.setStatus(false);
-
-		return model2;
+		}
+		return list;
 	}
 
 }
