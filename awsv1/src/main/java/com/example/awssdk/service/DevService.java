@@ -1,6 +1,6 @@
-package com.example.circuitbreaker.service;
+package com.example.awssdk.service;
 
-import com.example.circuitbreaker.model.Model3;
+import com.example.awssdk.model.Model3;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.log4j.Log4j2;
