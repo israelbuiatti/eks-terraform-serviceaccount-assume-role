@@ -27,8 +27,8 @@ public class Controller {
 	private AwsConfig awsConfig;
 
 
-	@GetMapping("/teste")
-	public ResponseEntity teste() {
+	@GetMapping("/buckets")
+	public ResponseEntity buckets() {
 
 		//Check token is expired
 		try {
@@ -39,12 +39,6 @@ public class Controller {
 
 		List<String> list = s3service.getList();
 		return ResponseEntity.ok(list);
-	}
-
-	@GetMapping("/renew")
-	public ResponseEntity renew() {
-		awsConfig.renew();
-		return ResponseEntity.ok("Aws credentials renewed...");
 	}
 
 	@GetMapping("/me")
@@ -59,5 +53,10 @@ public class Controller {
 		return ResponseEntity.ok(secret);
 	}
 
+	@GetMapping("/renew")
+	public ResponseEntity renew() {
+		awsConfig.renew();
+		return ResponseEntity.ok("Aws credentials renewed...");
+	}
 
 }

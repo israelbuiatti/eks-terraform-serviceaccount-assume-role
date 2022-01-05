@@ -1,25 +1,10 @@
-package com.example.awssdk.service.config; /**
- * Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * This file is licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License. A copy of
- * the License is located at
- *
- * http://aws.amazon.com/apache2.0/
- *
- * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- */
+package com.example.awssdk.service.config;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.*;
@@ -33,13 +18,18 @@ import java.io.*;
 
 @Component
 @Profile("prod")
-public class AwsConfigProd implements AwsConfig {
+public class AwsConfigProd extends AwsConfigAbstract {
 
     @Autowired
     private AwsCredentialsSettings awsCredentialsSettings;
 
     @PostConstruct
-    public void renew() {
+    public void init() {
+        renew();
+    }
+
+    @PostConstruct
+    public AWSCredentialsProvider getProvider() {
 
         String roleSessionName = "sessionName";
         int duration = 900; //The duration must be between 3,600 (1 hour) and 43,200 (12 hours)
@@ -75,32 +65,7 @@ public class AwsConfigProd implements AwsConfig {
                     sessionCredentials.getSecretAccessKey(),
                     sessionCredentials.getSessionToken());
 
-
-            //S3
-            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .withRegion(awsCredentialsSettings.getRegion())
-                    .build();
-
-            awsCredentialsSettings.setS3Client(s3Client);
-
-
-            //STS
-            AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .withRegion(awsCredentialsSettings.getRegion())
-                    .build();
-
-            awsCredentialsSettings.setStsClient(stsClient);
-
-
-            //SECRET MANAGER
-            AWSSecretsManager secretClient = AWSSecretsManagerClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .withRegion(awsCredentialsSettings.getRegion())
-                    .build();
-
-            awsCredentialsSettings.setSecretClient(secretClient);
+            return new AWSStaticCredentialsProvider(awsCredentials);
 
         }
         catch(AmazonServiceException e) {
@@ -114,6 +79,9 @@ public class AwsConfigProd implements AwsConfig {
             e.printStackTrace();
 
         }
+
+        return null;
+
     }
 
     private String getWebIdentityToken(String webIdentityTokenFile) {
@@ -133,5 +101,6 @@ public class AwsConfigProd implements AwsConfig {
             }
         }
     }
+
 }
 
