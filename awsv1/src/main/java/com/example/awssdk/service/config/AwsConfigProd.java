@@ -28,7 +28,7 @@ public class AwsConfigProd extends AwsConfigAbstract {
         renew();
     }
 
-    @PostConstruct
+    @Override
     public AWSCredentialsProvider getProvider() {
 
         String roleSessionName = "sessionName";

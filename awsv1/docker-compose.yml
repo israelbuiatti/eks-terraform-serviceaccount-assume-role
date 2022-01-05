@@ -5,11 +5,8 @@ services:
     image: israelbuiatti/awssdk-java-v1
     container_name: awssdk-java-v1
     ports:
-      - "8080:8083"
+      - "8080:8080"
     environment:
-      - AWS_ROLE_ARN=aws1
-      - AWS_WEB_IDENTITY_TOKEN_FILE=aws2
-      - AWS_DEFAULT_REGION=us-east-1
       - SPRING_PROFILES_ACTIVE=dev
     volumes:
       - C:\Users\israe\.aws:/root/.aws:ro

@@ -1,15 +1,11 @@
-package com.example.old.service;
+package com.example.awssdk.service;
 
-import com.example.old.settings.SecretsSettings;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
-
-import javax.annotation.PostConstruct;
 
 @Component
 public class SecretService {

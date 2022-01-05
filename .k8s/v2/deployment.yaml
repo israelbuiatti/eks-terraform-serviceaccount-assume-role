@@ -16,7 +16,7 @@ spec:
       serviceAccountName: demo
       containers:
         - name: backend-java
-          image: israelbuiatti/awssdk-java-v2
+          image: israelbuiatti/awssdk-java-v2:v1
           ports:
             - containerPort: 8080
           imagePullPolicy: "Always"       

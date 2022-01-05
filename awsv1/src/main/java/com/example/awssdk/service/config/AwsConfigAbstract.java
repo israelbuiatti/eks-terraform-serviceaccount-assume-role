@@ -23,7 +23,7 @@ public abstract class AwsConfigAbstract implements AwsConfig {
 
     public abstract AWSCredentialsProvider getProvider();
 
-    @PostConstruct
+    @Override
     public void renew() {
 
         //S3
