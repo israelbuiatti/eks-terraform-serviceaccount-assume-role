@@ -4,3 +4,7 @@ target/
 .env
 
 node_modules
+
+*.tfstate
+*.tfstate.*
+*.tfvars
