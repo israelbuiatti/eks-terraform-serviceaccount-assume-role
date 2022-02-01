@@ -31,7 +31,7 @@ public class Controller {
 
 	@GetMapping("/me")
 	public ResponseEntity me() {
-		String me = stsService.getCallerIdentity();
+		String me = s3service.getCallerIdentity();
 		return ResponseEntity.ok(me);
 	}
 
@@ -39,6 +39,12 @@ public class Controller {
 	public ResponseEntity secret() {
 		String secret = secretService.getSecretValue("dev/user/israel");
 		return ResponseEntity.ok(secret);
+	}
+
+	@GetMapping("/renew")
+	public ResponseEntity renew() {
+		s3service.renew();
+		return ResponseEntity.ok("OK");
 	}
 
 }

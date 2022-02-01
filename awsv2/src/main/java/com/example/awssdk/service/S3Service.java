@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.sts.model.StsException;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +18,8 @@ import java.util.Map;
 public class S3Service {
 
     Region region = Region.US_EAST_1;
-    String container = "sdm.datastore.us-east-1.dev.dev.clouddatastore";
-    String prefix = "hpflow:ostore2/yDGcG8CJPsnUZjYeHASxUsD0WE1Ilq16/";
+    String container = "test-israel-awsv2";
+    String prefix = "test";
     String file = "00bf1459-497f-4f97-9384-23b75d0960d9";
     S3Client s3Client;
     StsClient stsClient;
@@ -29,6 +30,9 @@ public class S3Service {
 
     public void renew() {
         try {
+            System.out.println("====================================");
+            System.out.println("===== Renew " + new Date());
+            System.out.println("====================================");
             s3Client = S3Client.builder().region(region).build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,6 +55,9 @@ public class S3Service {
 
         } catch(S3Exception e) {
              if (e.awsErrorDetails().errorCode().equals("ExpiredToken")) {
+                 System.out.println("====================================");
+                 System.out.println("===== ExpiredToken " + new Date());
+                 System.out.println("====================================");
                  e.printStackTrace();
                  renew();
              }
@@ -125,7 +132,7 @@ public class S3Service {
     //=======================================
     // GET CALLER IDENTITY
     //=======================================
-    public void getCallerIdentity() {
+    public String getCallerIdentity() {
         try {
 
             stsClient = StsClient.builder().region(region).build();
@@ -134,10 +141,12 @@ public class S3Service {
 
             System.out.println("The user id is" +response.userId());
             System.out.println("The ARN value is" +response.arn());
+
+            return response.arn();
         } catch (StsException e) {
             System.err.println(e.getMessage());
         }
-
+        return null;
     }
 
 }
